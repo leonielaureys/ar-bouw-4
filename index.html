@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AR-Bouw</title>
+<meta name="description" content="Structuur, wapening en technieken in AR op de Meta Quest 3 — masterproef">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
+  "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/web-ifc-api.js"
+} }
+</script>
+<style>
+:root { --bg:#0d1118; --pan:#151b25; --pan2:#1c2430; --lijn:#2a3442; --tekst:#e6edf5; --zacht:#93a4b8; --acc:#4da3ff; --ok:#3ddc84; --warn:#ffb340; }
+* { box-sizing: border-box; }
+[hidden] { display:none !important; }
+html, body { margin:0; height:100%; background:var(--bg); color:var(--tekst); font: 15px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
+#app { display:grid; grid-template-columns: 320px 1fr 340px; grid-template-rows: 56px 1fr; height:100vh; }
+header { grid-column: 1 / -1; display:flex; align-items:center; gap:14px; padding:0 18px; border-bottom:1px solid var(--lijn); background:var(--pan); }
+header h1 { font-size:18px; margin:0; letter-spacing:.2px; }
+header .sub { color:var(--zacht); font-size:13px; }
+header .sp { flex:1; }
+aside, #rechts { background:var(--pan); overflow:auto; padding:14px; }
+aside { border-right:1px solid var(--lijn); }
+#rechts { border-left:1px solid var(--lijn); }
+h2 { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--zacht); margin:18px 0 8px; }
+h2:first-child { margin-top:0; }
+.kaart { padding:10px 12px; border:1px solid var(--lijn); border-radius:10px; margin-bottom:8px; cursor:pointer; background:var(--pan2); }
+.kaart:hover { border-color:#3b4a5e; }
+.kaart.actief { border-color:var(--acc); box-shadow: inset 3px 0 0 var(--acc); }
+.kaart b { display:block; font-size:14px; }
+.kaart small { color:var(--zacht); }
+.badge { display:inline-block; font-size:11px; padding:1px 7px; border-radius:20px; background:#26364a; color:#9fc9ff; margin-right:4px; }
+.badge.ifc { background:#2c2a45; color:#c3b5ff; }
+.badge.lok { background:#20382b; color:#8ff0b5; }
+button, .knop { font:inherit; font-size:14px; color:var(--tekst); background:#243041; border:1px solid #33435a; padding:9px 13px; border-radius:9px; cursor:pointer; }
+button:hover { background:#2b3a4f; }
+button.hoofd { background:var(--acc); border-color:var(--acc); color:#06121f; font-weight:700; }
+button.hoofd.uit { background:#2a3442; border-color:#4da3ff; color:#cfe3ff; }
+button.hoofd:disabled { background:#2a3442; border-color:#2a3442; color:#6b7a8c; cursor:not-allowed; }
+.rij { display:flex; flex-wrap:wrap; gap:8px; }
+#midden { position:relative; overflow:hidden; }
+#midden canvas { display:block; width:100%; height:100%; }
+#balk { position:absolute; left:14px; right:14px; top:12px; display:flex; flex-wrap:wrap; gap:8px; pointer-events:none; }
+#balk > * { pointer-events:auto; }
+#melding { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); background:rgba(12,16,24,.92); border:1px solid var(--lijn); padding:10px 16px; border-radius:10px; max-width:80%; display:none; }
+#info { white-space:pre-wrap; font-size:13px; background:var(--pan2); border:1px solid var(--lijn); border-radius:10px; padding:10px; min-height:60px; }
+#rapport { white-space:pre-wrap; font-size:12.5px; color:#c9d6e4; max-height:none; }
+.laag { display:flex; align-items:center; gap:8px; padding:4px 0; }
+.laag i { width:12px; height:12px; border-radius:3px; display:inline-block; }
+select, input[type=range] { width:100%; }
+select { font:inherit; background:#243041; color:var(--tekst); border:1px solid #33435a; border-radius:8px; padding:7px; }
+.zacht { color:var(--zacht); font-size:13px; }
+.waarsch { color:var(--warn); }
+#qrModal { position:fixed; inset:0; background:rgba(0,0,0,.8); display:none; align-items:center; justify-content:center; z-index:10; }
+#qrModal .doos { background:var(--pan); border:1px solid var(--lijn); border-radius:14px; padding:16px; width:min(560px, 92vw); }
+#qrModal video { width:100%; border-radius:10px; background:#000; }
+@media (max-width: 1000px) {
+  #app { grid-template-columns: 1fr; grid-template-rows: 56px auto 60vh auto; height:auto; }
+  aside, #rechts { border:0; }
+}
+.tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:12px; }
+.tab { display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 10px; text-align:left; font-weight:700; font-size:14px; }
+.tab small { font-weight:400; font-size:11.5px; color:var(--zacht); }
+.tab[aria-selected="true"] { background:#14325a; border-color:var(--acc); }
+.paneel > p { margin:0 0 10px; }
+.form { display:grid; gap:6px; margin-bottom:12px; padding:10px; border:1px solid var(--lijn); border-radius:10px; background:var(--pan2); }
+.form label { font-size:12.5px; color:var(--zacht); }
+.form input { font:inherit; background:#243041; color:var(--tekst); border:1px solid #33435a; border-radius:8px; padding:7px; }
+.form button { margin-top:6px; }
+.vink { display:flex; gap:8px; align-items:flex-start; font-size:13px; color:var(--zacht); margin:8px 0; }
+.hoofdknop { display:inline-block; background:var(--acc); border-color:var(--acc); color:#06121f; font-weight:700; margin-bottom:4px; }
+.kaart .rij { margin-top:6px; }
+.kaart .klein { font-size:12.5px; padding:5px 9px; }
+.leeg { color:var(--zacht); font-size:13px; padding:10px; border:1px dashed var(--lijn); border-radius:10px; }
+#startScherm { position:fixed; inset:0; z-index:9; background:var(--bg); overflow:auto; display:flex; align-items:center; justify-content:center; padding-block:24px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.startBinnen { width:min(1040px, 100%); }
+.startTitel { font-size:34px; text-transform:none; letter-spacing:0; color:var(--tekst); margin:0 0 6px; }
+.startSub { color:var(--zacht); margin:0 0 22px; max-width:62ch; font-size:16px; }
+.tegels { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+.tegel { display:flex; flex-direction:column; align-items:flex-start; gap:8px; text-align:left; padding:22px 20px; min-height:220px; border-radius:16px; background:var(--pan2); border:1px solid var(--lijn); font-size:15px; }
+.tegel:hover, .tegel:focus-visible { border-color:var(--acc); background:#1b2a3d; }
+.tegelNr { font-size:12px; text-transform:uppercase; letter-spacing:1.2px; color:var(--acc); font-weight:700; }
+.tegel b { font-size:22px; }
+.tegel span:not(.tegelNr) { color:var(--zacht); line-height:1.5; }
+.tegel em { margin-top:auto; font-style:normal; font-size:13px; color:#9fc9ff; }
+.menuknop { padding:6px 12px; font-weight:700; }
+@media (max-width: 760px) { .tegels { grid-template-columns:1fr; } .tegel { min-height:0; } }
+.stappen { margin:0 0 10px; padding-left:20px; color:var(--zacht); font-size:13px; display:grid; gap:4px; }
+.stappen b { color:var(--tekst); }
+.fiche { display:grid; gap:10px; }
+.veld { display:grid; gap:4px; }
+.veld label { font-size:12.5px; color:var(--zacht); }
+.veld small { font-size:11.5px; color:#7f91a6; line-height:1.35; }
+.veld select, .veld textarea { font:inherit; font-size:13.5px; background:#243041; color:var(--tekst); border:1px solid #33435a; border-radius:8px; padding:7px; width:100%; }
+.meter { height:8px; border-radius:6px; background:#243041; overflow:hidden; }
+.meter i { display:block; height:100%; background:linear-gradient(90deg, #ffb340, #3ddc84); }
+.check { list-style:none; margin:0; padding:0; display:grid; gap:4px; font-size:13px; }
+.check li { display:grid; grid-template-columns:18px 1fr; column-gap:4px; color:var(--tekst); }
+.check li span { color:var(--zacht); }
+.check li.ok span { color:var(--ok); }
+.check li.ok { color:var(--zacht); }
+.check small { grid-column:2; color:#7f91a6; font-size:11.5px; }
+.thumbs { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:6px; margin-top:8px; }
+.thumbs figure { margin:0; position:relative; }
+.thumbs img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; display:block; }
+.thumbs button { position:absolute; top:2px; right:2px; padding:0 6px; font-size:12px; border-radius:6px; }
+.planset { display:grid; gap:6px; margin-top:8px; font-size:12.5px; color:var(--zacht); }
+.planset label { display:grid; gap:2px; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:12; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.modal .doos.donker { background:var(--pan); border:1px solid var(--lijn); border-radius:14px; padding:16px; width:min(940px, 100%); }
+#qrToon { position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:11; }
+#qrToon .doos { background:#fff; color:#111; border-radius:14px; padding:18px; width:min(420px,92vw); text-align:center; }
+#qrToon .doos svg { width:100%; height:auto; }
+#qrToon .rij { justify-content:center; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button type="button" id="btnMenu" class="menuknop" aria-label="Terug naar het hoofdmenu">☰ Menu</button>
+    <h1>AR-Bouw</h1><span class="sub">structuur · wapening · technieken in AR (Quest 3)</span>
+    <span class="sp"></span>
+    <span id="xrStatus" class="zacht"></span>
+  </header>
+  <aside>
+    <div class="tabs" role="tablist" aria-label="Soort project">
+      <button type="button" class="tab" role="tab" data-tab="db" id="tabbtn-db">Database<small>vaste lokalen</small></button>
+      <button type="button" class="tab" role="tab" data-tab="scan" id="tabbtn-scan">Eigen project<small>scan met de bril</small></button>
+      <button type="button" class="tab" role="tab" data-tab="ifc" id="tabbtn-ifc">Revit<small>IFC uploaden</small></button>
+    </div>
+    <section id="tab-db" class="paneel">
+      <p class="zacht">Vaste lokalen met hun gegevens. Elk lokaal krijgt QR-codes: hang ze op en de bril opent meteen het juiste lokaal op de juiste plek.</p>
+      <div id="lijstDb"></div>
+    </section>
+    <section id="tab-scan" class="paneel" hidden>
+      <ol class="stappen">
+        <li><b>Project aanmaken</b> hieronder.</li>
+        <li><b>Projectfiche invullen</b> (rechts): bouwperiode, vloer, wanden, verwarming… Voeg een <b>plan</b> en <b>foto's</b> toe.</li>
+        <li><b>Rondgang met de bril</b>: Start AR › Rondgang. De app laat je de ruimte scannen en daarna stap voor stap deur, ramen, stopcontacten, lampen, radiator… aanwijzen.</li>
+      </ol>
+      <form id="frmNieuw" class="form">
+        <label for="nwNaam">Naam ruimte</label><input id="nwNaam" required placeholder="bv. Lokaal B2.14" maxlength="60">
+        <label for="nwFunctie">Functie</label><select id="nwFunctie"><option value="kot">Studentenkamer</option><option value="woning">Woning</option><option value="klas">Klaslokaal</option><option value="kantoor">Kantoor</option><option value="ander">Andere</option></select>
+        <button type="submit" class="hoofd">Project aanmaken</button>
+      </form>
+      <div id="lijstScan"></div>
+      <label class="knop" style="margin-top:6px">Project importeren (.json)<input id="fileJson" type="file" accept=".json" hidden></label>
+    </section>
+    <section id="tab-ifc" class="paneel" hidden>
+      <p class="zacht">Upload een IFC uit Revit. De app tekent er wapening (EN 1992-1-1) en technieken per ruimte (IfcSpace) bij.</p>
+      <label class="knop hoofdknop">IFC uploaden<input id="fileIfc" type="file" accept=".ifc" hidden></label>
+      <label class="vink"><input type="checkbox" id="ifcWap" checked> Wapening (beton) en verbindingen (CLT/hout) genereren</label>
+      <label class="vink"><input type="checkbox" id="ifcTech" checked> Technieken per ruimte aanvullen (enkel wat nog niet in het IFC staat; leidingen naar de toestellen uit Revit)</label>
+      <label class="vink"><input type="checkbox" id="ifcVV" checked> Vloerverwarming tekenen in ruimtes zonder radiatoren</label>
+      <label class="vink"><input type="checkbox" id="ifcBeton"> Elementen zonder herkenbaar materiaal als beton behandelen (hout/CLT en staal worden altijd herkend)</label>
+      <div id="lijstIfc"></div>
+    </section>
+  </aside>
+  <main id="midden">
+    <div id="balk">
+      <button id="btnAR" class="hoofd">▶ Start AR (bril)</button>
+      <button id="btnQR">QR scannen</button>
+      <button id="btnBladen">QR-bladen printen</button>
+      <button id="btnExport">Exporteer project</button>
+      <button id="btnReset" title="Lokale wijzigingen (inmeting, markers, notities) wissen">Reset lokaal</button>
+    </div>
+    <div id="melding"></div>
+  </main>
+  <section id="rechts">
+    <h2>Project</h2>
+    <div id="projInfo" class="zacht">—</div>
+    <h2>Lagen</h2>
+    <div id="lagen"></div>
+    <h2>Bouwfase</h2>
+    <input id="fase" type="range" min="0" max="5" value="0"><div id="faseNaam" class="zacht">Alles</div>
+    <h2>Volledigheid</h2>
+    <div id="volledigheid"></div>
+    <h2>Projectfiche</h2>
+    <div id="fiche" class="fiche"></div>
+    <h2>Plan &amp; foto's</h2>
+    <div id="media"></div>
+    <h2>Geselecteerd element</h2>
+    <div id="info">Klik op een element.</div>
+    <h2>Rekennota (voorontwerp)</h2>
+    <div id="rapport" class="zacht"></div>
+  </section>
+</div>
+<div id="startScherm" role="dialog" aria-label="Hoofdmenu">
+  <div class="startBinnen">
+    <h2 class="startTitel">AR-Bouw</h2>
+    <p class="startSub">Structuur, wapening en technieken zichtbaar in je echte ruimte met de Meta Quest 3. Kies hoe je wil werken.</p>
+    <div class="tegels">
+      <button type="button" class="tegel" data-start="db"><span class="tegelNr">Database</span><b>Vaste lokalen</b><span>Lokalen met gekende gegevens. Hang een QR-code op en de bril opent meteen het juiste lokaal op de juiste plek.</span><em id="telDb"></em></button>
+      <button type="button" class="tegel" data-start="scan"><span class="tegelNr">Eigen project</span><b>Inmeten met de bril</b><span>Maak een nieuw project, scan de ruimte met de Quest en laat de app structuur en technieken aanvullen.</span><em id="telScan"></em></button>
+      <button type="button" class="tegel" data-start="ifc"><span class="tegelNr">Revit</span><b>IFC uploaden</b><span>Laad je Revit-model. De app vult wapening, CLT-verbindingen, leidingen en vloerverwarming aan waar ze ontbreken.</span><em id="telIfc"></em></button>
+    </div>
+  </div>
+</div>
+<div id="planModal" class="modal" hidden role="dialog" aria-label="Plan op schaal zetten"><div class="doos donker">
+  <b>Plan op schaal zetten</b>
+  <p id="planStap" class="zacht" style="margin:6px 0"></p>
+  <div style="overflow:auto;max-height:65vh"><canvas id="planCanvas" style="max-width:100%;cursor:crosshair;border-radius:8px"></canvas></div>
+  <div class="rij" style="margin-top:10px;align-items:center"><label for="planAfst">Afstand (m)</label><input id="planAfst" inputmode="decimal" placeholder="bv. 4,90" style="width:110px;font:inherit;background:#243041;color:var(--tekst);border:1px solid #33435a;border-radius:8px;padding:7px"><button type="button" id="planOk" class="hoofd">Toepassen</button><button type="button" id="planNiet">Annuleren</button></div>
+</div></div>
+<div id="qrToon" hidden><div class="doos"><b id="qrTitel">QR</b><div id="qrBeeld"></div><p id="qrTekst" style="font-size:13px;color:#444"></p><div class="rij"><button type="button" id="qrVorige">◀</button><b id="qrBlad">M1</b><button type="button" id="qrVolgende">▶</button><button type="button" id="qrSluit">Sluiten</button></div></div></div>
+<div id="qrModal"><div class="doos">
+  <b>Richt op de QR-code</b>
+  <p class="zacht" style="margin:4px 0 10px">Houd het blad 30–60 cm voor de bril.</p>
+  <video id="qrVideo" playsinline muted></video>
+  <div class="rij" style="margin-top:10px"><button id="qrStop">Annuleren</button><span id="qrMsg" class="zacht"></span></div>
+</div></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR-bladen</title>
+<style>
+@page { size: A4 landscape; margin: 0; }
+:root { --acc:#1769d1; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: #e9edf2; color: #111; }
+.bediening { padding: 14px 18px; background: #0d1118; color: #e6edf5; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bediening button, .bediening select { font: inherit; padding: 8px 12px; border-radius: 8px; border: 1px solid #33435a; background: #243041; color: #e6edf5; }
+.bediening .hoofd { background: #4da3ff; color: #06121f; font-weight: 700; border-color: #4da3ff; }
+.blad { width: 297mm; height: 210mm; background: #fff; margin: 10mm auto; position: relative; overflow: hidden; page-break-after: always; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.qr { position: absolute; left: 50%; top: 50%; width: 110mm; height: 110mm; transform: translate(-50%, -50%); }
+.qr svg { width: 100%; height: 100%; display: block; }
+.kruis { position: absolute; top: 50%; width: 24mm; height: 24mm; transform: translate(-50%, -50%); }
+.kruis::before, .kruis::after { content: ''; position: absolute; background: #000; }
+.kruis::before { left: 50%; top: 0; bottom: 0; width: 0.5mm; transform: translateX(-50%); }
+.kruis::after { top: 50%; left: 0; right: 0; height: 0.5mm; transform: translateY(-50%); }
+.kruis i { position: absolute; inset: 5mm; border: 0.6mm solid #000; border-radius: 50%; }
+.kruis b { position: absolute; top: -9mm; left: 50%; transform: translateX(-50%); font-size: 7mm; }
+.kruis.l { left: calc(50% - 120mm); } .kruis.r { left: calc(50% + 120mm); }
+.kop { position: absolute; top: 8mm; left: 12mm; right: 12mm; display: flex; justify-content: space-between; font-size: 4.2mm; }
+.kop .id { font-size: 9mm; font-weight: 800; color: var(--acc); }
+.voet { position: absolute; bottom: 8mm; left: 12mm; right: 12mm; font-size: 3.4mm; line-height: 1.4; display: flex; justify-content: space-between; gap: 10mm; }
+.lat { width: 100mm; height: 4mm; border: 0.3mm solid #000; border-top: 0; background: repeating-linear-gradient(90deg, #000 0 0.3mm, transparent 0.3mm 10mm); flex: none; }
+@media print { body { background: #fff; } .bediening { display: none; } .blad { margin: 0; box-shadow: none; } }
+@media screen and (max-width: 1150px) { .blad { zoom: 0.5; } }
+</style>
+</head>
+<body>
+<div class="bediening">
+  <b id="titel">QR-bladen</b>
+  <label>Aantal bladen <select id="n"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>6</option><option>8</option></select></label>
+  <button class="hoofd" onclick="print()">Printen</button>
+  <span style="opacity:.75">Print op <b>ware grootte (100 %)</b> — controleer met de lat van 100 mm onderaan.</span>
+</div>
+<div id="bladen"></div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+const q = new URLSearchParams(location.search);
+const p = q.get('p') || 'project', naam = q.get('naam') || p;
+document.getElementById('titel').textContent = 'QR-bladen · ' + naam;
+const app = new URL('index.html', location.href);
+function teken() {
+  const n = +document.getElementById('n').value, box = document.getElementById('bladen'); box.innerHTML = '';
+  for (let i = 1; i <= n; i++) {
+    const m = 'M' + i; const url = new URL(app); url.searchParams.set('p', p); url.searchParams.set('m', m);
+    const qr = qrcode(0, 'M'); qr.addData(url.toString()); qr.make();
+    const d = document.createElement('div'); d.className = 'blad';
+    d.innerHTML = `<div class="kop"><div><div class="id">${m}</div>${esc(naam)}</div><div style="text-align:right">AR-Bouw<br><small>${esc(url.host + url.pathname)}</small></div></div>
+      <div class="kruis l"><i></i><b>L</b></div><div class="qr">${qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true })}</div><div class="kruis r"><i></i><b>R</b></div>
+      <div class="voet"><div><b>Gebruik:</b> hang het blad waterpas (midden ± 1,50 m) op een vlakke muur. Eerste keer: in AR uitlijnen en dan <i>Kalibreren › QR registreren</i> (kruisje L, dan R).
+      Daarna: <i>QR scannen</i> → Start AR → met de witte punt van de controller L en R aantikken. Tip: tik nog een punt op dezelfde muur ver van het blad.</div>
+      <div><div class="lat"></div><small>controlelat 100 mm · kruisjes 240 mm uit elkaar</small></div></div>`;
+    box.appendChild(d);
+  }
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+document.getElementById('n').onchange = teken;
+window.addEventListener('load', teken);
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+{
+  "id": "kot-backstage",
+  "naam": "Mijn kot – Backstage² Upkot",
+  "soort": "ruimte",
+  "status": "aanname",
+  "beschrijving": "6e verdieping, Sint-Pietersnieuwstraat 122-126, Gent. Vorm uit het brandplan; deur, schacht, lavabo, raam, radiator, 2 lichtpunten, rookmelder, kolom en gevelbalk uit foto's/video (16/10). Maten nog te bevestigen met de ruimte-scan.",
+  "bron": "Brandplan 6e verdieping + 9 foto's en video van de kamer + Upkot-website",
+  "gebouw": {
+    "type": "recent",
+    "vloer": "welfsels",
+    "draagrichting": "lang",
+    "beton": "C25/30",
+    "milieuklasse": "XC1",
+    "verwarming": "radiator",
+    "ventilatie": "C",
+    "hStopcontact": 0.3,
+    "vloeropbouw": {
+      "afwerking": 0.015,
+      "chape": 0.07,
+      "isolatie": 0.06
+    }
+  },
+  "ruimte": {
+    "naam": "Kamer",
+    "vloer": [
+      [
+        0,
+        0
+      ],
+      [
+        4.9,
+        0
+      ],
+      [
+        4.9,
+        3.15
+      ],
+      [
+        1.1,
+        3.15
+      ],
+      [
+        1.1,
+        2.45
+      ],
+      [
+        0,
+        2.45
+      ]
+    ],
+    "hoogte": 2.6,
+    "wanden": {
+      "0": "scheiding",
+      "1": "buiten",
+      "2": "scheiding",
+      "3": "schachtwand",
+      "4": "schachtwand",
+      "5": "gangDragend"
+    },
+    "openingen": [
+      {
+        "type": "deur",
+        "x": 0,
+        "z": 1.55,
+        "breedte": 1.0,
+        "hoogte": 2.15,
+        "bevestigd": true
+      },
+      {
+        "type": "raam",
+        "x": 4.9,
+        "z": 0.75,
+        "breedte": 1.2,
+        "borstwering": 0.0,
+        "hoogte": 2.3,
+        "bevestigd": true
+      }
+    ],
+    "objecten": [
+      {
+        "type": "schacht",
+        "x0": 0,
+        "z0": 2.45,
+        "x1": 1.1,
+        "z1": 3.15,
+        "bevestigd": true
+      },
+      {
+        "type": "lavabo",
+        "x": 1.55,
+        "z": 3.15,
+        "bevestigd": true
+      },
+      {
+        "type": "stopcontact",
+        "x": 1.2,
+        "y": 1.05,
+        "z": 3.15,
+        "bevestigd": true
+      },
+      {
+        "type": "schakelaar",
+        "x": 0,
+        "y": 1.1,
+        "z": 0.85,
+        "bevestigd": true
+      },
+      {
+        "type": "schakelaar",
+        "x": 1.95,
+        "y": 1.25,
+        "z": 3.15,
+        "voor": "wandlamp",
+        "bevestigd": true
+      },
+      {
+        "type": "wandlamp",
+        "x": 1.55,
+        "y": 2.15,
+        "z": 3.15,
+        "bevestigd": true
+      },
+      {
+        "type": "ventiel",
+        "x": 0.75,
+        "y": 2.4,
+        "z": 2.45,
+        "bevestigd": true
+      },
+      {
+        "type": "ventiel",
+        "x": 0.3,
+        "y": 2.1,
+        "z": 2.45,
+        "bevestigd": true
+      },
+      {
+        "type": "lichtpunt",
+        "x": 2.3,
+        "z": 1.8,
+        "bevestigd": true
+      },
+      {
+        "type": "lichtpunt",
+        "x": 4.0,
+        "z": 1.8,
+        "bevestigd": true
+      },
+      {
+        "type": "rookmelder",
+        "x": 3.2,
+        "z": 1.8,
+        "bevestigd": true
+      },
+      {
+        "type": "radiator",
+        "x": 4.15,
+        "z": 0,
+        "bevestigd": true
+      },
+      {
+        "type": "kolom",
+        "x": 4.83,
+        "z": 1.5,
+        "breedte": 0.12,
+        "bevestigd": true,
+        "materiaal": "staal"
+      },
+      {
+        "type": "balk",
+        "x": 4.9,
+        "z": 1.5,
+        "hoogte": 0.15,
+        "diepte": 0.2,
+        "bevestigd": true,
+        "materiaal": "staal"
+      }
+    ]
+  },
+  "markers": []
+}

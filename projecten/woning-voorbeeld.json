@@ -1,0 +1,21 @@
+{
+  "id": "woning-voorbeeld",
+  "naam": "Vast model: woonkamer (voorbeeld)",
+  "soort": "ruimte",
+  "status": "aanname",
+  "beschrijving": "Sjabloon L-vormige woonkamer met predallen. Te vervangen door echte gegevens.",
+  "gebouw": { "type": "woning", "vloer": "predal", "beton": "C25/30", "milieuklasse": "XC1", "verwarming": "vloer", "ventilatie": "C",
+    "vloeropbouw": { "afwerking": 0.015, "chape": 0.07, "isolatie": 0.08 } },
+  "ruimte": {
+    "naam": "Woonkamer",
+    "vloer": [[0, 0], [6.5, 0], [6.5, 4.0], [3.8, 4.0], [3.8, 6.2], [0, 6.2]],
+    "hoogte": 2.7,
+    "openingen": [
+      { "type": "deur", "x": 0, "z": 0.9, "breedte": 0.93, "hoogte": 2.11 },
+      { "type": "raam", "x": 6.5, "z": 2.0, "breedte": 2.8, "borstwering": 0.0, "hoogte": 2.3 },
+      { "type": "raam", "x": 1.9, "z": 6.2, "breedte": 1.6, "borstwering": 0.9, "hoogte": 1.4 }
+    ],
+    "objecten": []
+  },
+  "markers": []
+}

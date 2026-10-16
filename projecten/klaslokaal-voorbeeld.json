@@ -1,0 +1,25 @@
+{
+  "id": "klaslokaal-voorbeeld",
+  "naam": "Vast model: klaslokaal (voorbeeld)",
+  "soort": "ruimte",
+  "status": "aanname",
+  "beschrijving": "Sjabloon voor een vast lokaal (8 × 7 m). Wordt aangevuld zodra plannen beschikbaar zijn.",
+  "gebouw": { "type": "school", "vloer": "terplaatse", "beton": "C30/37", "milieuklasse": "XC1", "verwarming": "radiator", "ventilatie": "C",
+    "vloeropbouw": { "afwerking": 0.01, "chape": 0.06, "isolatie": 0.05 } },
+  "ruimte": {
+    "naam": "Lokaal",
+    "vloer": [[0, 0], [8, 0], [8, 7], [0, 7]],
+    "hoogte": 3.0,
+    "openingen": [
+      { "type": "deur", "x": 0, "z": 1.2, "breedte": 1.0, "hoogte": 2.11 },
+      { "type": "raam", "x": 8, "z": 1.8, "breedte": 2.4, "borstwering": 0.9, "hoogte": 1.6 },
+      { "type": "raam", "x": 8, "z": 5.2, "breedte": 2.4, "borstwering": 0.9, "hoogte": 1.6 }
+    ],
+    "objecten": [
+      { "type": "radiator", "x": 8, "z": 1.8 },
+      { "type": "radiator", "x": 8, "z": 5.2 },
+      { "type": "lavabo", "x": 0, "z": 5.8 }
+    ]
+  },
+  "markers": []
+}
